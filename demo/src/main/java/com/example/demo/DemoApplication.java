@@ -6,45 +6,60 @@ public class DemoApplication {
   public static void main(String[] args) {
 //		SpringApplication.run(DemoApplication.class, args);
 
-    ShareData shared = new ShareData();
-    LabThread thred1 = new LabThread("thread1", shared, 2000);
-    LabThread thred2 = new LabThread("thread2", shared, 4000);
+    ContaBancaria conta = new ContaBancaria();
+    LabThread thred1 = new LabThread("thread_1", conta);
+    LabThread thred2 = new LabThread("thread_2", conta);
 
     thred1.start();
     thred2.start();
   }
 
 }
-class ShareData {
-  private int count = 0;
+class ContaBancaria {
+  private int saldo = 10;
 
-  public int add() {
-    return ++this.count;
+  public int deposito(int valor) {
+    saldo = saldo + valor;
+    return saldo;
+  }
+  
+  public int saque(int valor) {
+    int valor_sacado;
+    if (saldo < valor) {
+      System.out.println("nao foi possivel sacar " + valor + " de " + saldo);
+      valor_sacado = 0;
+    }
+    else {
+      System.out.println("saquei " + valor + " de " + saldo);
+      valor_sacado = valor;
+      saldo = saldo - valor;
+    }
+    return valor_sacado;
   }
 }
 
 
 class LabThread implements Runnable {
   private Thread LabThread;
-  private final String name;
-  private final int delay;
-  private final ShareData data;
+  private String name;
+  private int delay;
+  private ContaBancaria conta;
 
-  LabThread(String name, ShareData data, int delay) {
+  LabThread(String name, ContaBancaria conta) {
     this.name = name;
-    this.data = data;
-    this.delay = delay;
+    this.conta = conta;
+    this.delay = 200;
   }
 
   @Override
   public void run() {
     System.out.println("Thread em execucao: " + name);
     for (int i = 0; i < 8; i++) {
-      System.out.println(data.add() + " " + name);
+      conta.saque(1);
       try {
         Thread.sleep(delay);
       } catch (InterruptedException e) {
-        System.out.println("Thread interruption" + name);
+        System.out.println("Thread interruption " + name);
       }
     }
   }
